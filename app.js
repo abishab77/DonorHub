@@ -72,3 +72,70 @@ app.post('/verify-otp', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+//db
+const mysql = require('mysql2');
+
+
+app.use(bodyParser.json());
+
+// Database connection
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'donorhub'
+});
+
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to MySQL:', err);
+        return;
+    }
+    console.log('Connected to MySQL database.');
+});
+
+// Endpoint to handle form submission
+app.post('/submit-form', (req, res) => {
+    const { username, age, phone, email, password } = req.body;
+
+    if (!username || !age || !phone || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const query = `INSERT INTO users (username, age, phone, email, password) VALUES (?, ?, ?, ?, ?)`;
+    db.query(query, [username, age, phone, email, password], (err, result) => {
+        if (err) {
+            console.error('Error inserting data into database:', err);
+            return res.status(500).json({ message: 'Database error.' });
+        }
+        res.status(200).json({ message: 'Form details saved successfully!' });
+    });
+});
+//login
+// Login Endpoint
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+  
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+  
+    // Query to check if user exists with the provided email and password
+    const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
+    db.query(query, [email, password], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Database error.' });
+      }
+  
+      if (results.length > 0) {
+        // Success
+        return res.status(200).json({ message: 'Login successful!' });
+      } else {
+        // Failure
+        return res.status(401).json({ message: 'Invalid email or password.' });
+      }
+    });
+  });
+  
