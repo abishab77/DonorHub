@@ -292,33 +292,33 @@
 
         // Send OTP
 
-         function sendOtp() {
-            const email = document.getElementById('email').value.trim();
+        // function sendOtp() {
+        //     const email = document.getElementById('email').value.trim();
 
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                document.getElementById('emailError').textContent = "Please enter a valid email address.";
-                return;
-            }
+        //     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        //         document.getElementById('emailError').textContent = "Please enter a valid email address.";
+        //         return;
+        //     }
 
-            fetch('http://localhost:5000/send-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                        // Display OTP input box
-                        document.querySelector('.otp').style.display = 'flex';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
+        //     fetch('http://localhost:5000/send-otp', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ email }),
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.message) {
+        //                 alert(data.message);
+        //                 // Display OTP input box
+        //                 document.querySelector('.otp').style.display = 'flex';
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //         });
+        // }
 
         var allowforsubmission = false
         function openotbox() {
@@ -366,10 +366,10 @@
             const email = document.getElementById('email').value.trim(); // Trim spaces to avoid issues
 
             // Check if the OTP or email is empty
-            if (!email || otp.length !== 6 || otp.includes('')) {
-                alert('Please enter a valid email and complete the 6-digit OTP.');
-                return;
-            }
+            // if (!email || otp.length !== 6 || otp.includes('')) {
+            //     alert('Please enter a valid email and complete the 6-digit OTP.');
+            //     return;
+            // }
 
             // Optional client-side validation using localStorage
             const storedOtp = localStorage.getItem('otp');
@@ -417,7 +417,45 @@
             }
         });
 
+        //form submission
+        document.querySelector('form').addEventListener('submit', async function (event) {
+            if (!allowforsubmission) {
+                event.preventDefault(); // Prevent form submission
+                alert('Form submission is not allowed. Please complete all required actions.');
+            } else {
+                event.preventDefault(); // Prevent default submission to handle via fetch API
+                alert('Form submitted! Saving to database...');
 
+                // Collect form data
+                const formData = {
+                    username: document.getElementById('username').value.trim(),
+                    age: document.getElementById('age').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value.trim(),
+                };
+
+                try {
+                    // Send form data to the server
+                    const response = await fetch('http://localhost:5000/submit-form', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Form details saved successfully!');
+                    } else {
+                        alert(`Failed to save form details: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred while submitting the form. Please try again.');
+                }
+            }
+        });
     </script>
 
 </body>
