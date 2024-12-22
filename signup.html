@@ -104,6 +104,10 @@
                 padding: 1.5rem;
             }
         }
+
+        .otp-group {
+            display: none;
+        }
     </style>
 </head>
 
@@ -139,7 +143,8 @@
 
                 <button type="button" class="button" onclick="sendOtp()">Send OTP</button>
 
-                <div class="input-group">
+
+                <div class="input-group otp-group">
                     <label for="otp">Enter OTP</label>
                     <div class="otp">
                         <input type="text" maxlength="1" id="otp1" />
@@ -164,7 +169,7 @@
                     <p class="error-message" id="confirmpasswordError"></p>
                 </div>
 
-                <button type="button" class="button" onclick="validateForm()">Submit</button>
+                <button type="submit" class="button" onclick="validateForm()">Submit</button>
             </form>
         </div>
     </div>
@@ -172,11 +177,38 @@
     <script>
 
 
+        //otp move
+        document.querySelectorAll('.otp input').forEach((input, index, inputs) => {
+            input.addEventListener('input', (event) => {
+                // Move to the next input if current input has a value
+                if (event.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+
+                // Check if all inputs are filled
+                const otp = Array.from(inputs).map((input) => input.value).join('');
+                if (otp.length === inputs.length && otp.split('').every((digit) => digit !== '')) {
+                    verifyOtp(); // Call verifyOtp function if all fields are filled
+                }
+            });
+
+            input.addEventListener('keydown', (event) => {
+                // Handle backspace to move focus to the previous input
+                if (event.key === 'Backspace' && event.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        //signup script 
+        // Validate Form
         function validateForm() {
             let isValid = true;
 
             // Clear previous errors
             document.querySelectorAll('.error-message').forEach(e => e.textContent = "");
+            console.log('hi')
+            // verifyOtp()
 
             // Validate Name
             const username = document.getElementById('username').value.trim();
@@ -208,7 +240,120 @@
                 isValid = false;
             }
 
-            // Validate OTP
+
+            // Get input fields and error message elements
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmpassword').value.trim();
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmpasswordError');
+
+            // Clear previous error messages
+            passwordError.textContent = '';
+            confirmPasswordError.textContent = '';
+
+            // Password validation rules
+            const passwordCriteria = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
+
+            // Check if password is empty
+            if (!password) {
+                passwordError.textContent = 'Password is required.';
+                isValid = false;
+            } else if (!passwordCriteria.test(password)) {
+                // Check password strength
+                passwordError.textContent =
+                    'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+                isValid = false;
+            }
+
+            // Check if confirm password is empty
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = 'Please confirm your password.';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                // Check if passwords match
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                isValid = false;
+            }
+
+
+            // Attach event listener to a form submit button
+            document.querySelector('form').addEventListener('submit', function (e) {
+                if (!validatePassword()) {
+                    e.preventDefault(); // Prevent form submission if validation fails
+                }
+            });
+
+
+            return isValid;
+
+        }
+
+        // Send OTP
+
+        // function sendOtp() {
+        //     const email = document.getElementById('email').value.trim();
+
+        //     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        //         document.getElementById('emailError').textContent = "Please enter a valid email address.";
+        //         return;
+        //     }
+
+        //     fetch('http://localhost:5000/send-otp', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ email }),
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.message) {
+        //                 alert(data.message);
+        //                 // Display OTP input box
+        //                 document.querySelector('.otp').style.display = 'flex';
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //         });
+        // }
+
+        var allowforsubmission = false
+        function openotbox() {
+            const otpContainer = document.querySelector('.otp-group');
+            if (otpContainer.style.display === 'block') {
+                otpContainer.style.display = 'none'; // Hide the OTP box
+            } else {
+                otpContainer.style.display = 'block'; // Show the OTP box
+            }
+        }
+
+        async function sendOtp() {
+            const email = document.getElementById('email').value;
+
+            const response = await fetch('http://localhost:5000/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('OTP sent:', data.otp); // For debugging
+                localStorage.setItem('otp', data.otp); // Store OTP in local storage
+                alert('OTP sent successfully!');
+                openotbox()
+            } else {
+                alert(data.message);
+            }
+        }
+
+        // Verify OTP
+        async function verifyOtp() {
+            // Get the OTP values from individual input fields and combine them into a single string
             const otp = [
                 document.getElementById('otp1').value,
                 document.getElementById('otp2').value,
@@ -217,29 +362,61 @@
                 document.getElementById('otp5').value,
                 document.getElementById('otp6').value
             ].join('');
-            if (otp.length !== 6 || isNaN(otp)) {
-                document.getElementById('otpError').textContent = "Please enter a valid 6-digit OTP.";
-                isValid = false;
+
+            const email = document.getElementById('email').value.trim(); // Trim spaces to avoid issues
+
+            // Check if the OTP or email is empty
+            // if (!email || otp.length !== 6 || otp.includes('')) {
+            //     alert('Please enter a valid email and complete the 6-digit OTP.');
+            //     return;
+            // }
+
+            // Optional client-side validation using localStorage
+            const storedOtp = localStorage.getItem('otp');
+            if (storedOtp && storedOtp !== otp) {
+                alert('Incorrect OTP (Client-side check).');
+                return;
             }
 
-            // Validate Password
-            const password = document.getElementById('password').value.trim();
-            if (password.length < 6) {
-                document.getElementById('passwordError').textContent = "Password must be at least 6 characters long.";
-                isValid = false;
-            }
+            try {
+                // Make a request to the backend to verify the OTP
+                const response = await fetch('http://localhost:5000/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp }),
+                });
 
-            // Validate Confirm Password
-            const confirmPassword = document.getElementById('confirmpassword').value.trim();
-            if (confirmPassword !== password) {
-                document.getElementById('confirmpasswordError').textContent = "Passwords do not match.";
-                isValid = false;
-            }
+                const data = await response.json();
 
-            if (isValid) {
-                alert("Form submitted successfully!");
+                if (response.ok) {
+                    // Successful verification
+                    alert(data.message);
+                    localStorage.removeItem('otp'); // Clear OTP after successful verification
+                    openotbox()
+                    allowforsubmission = true
+
+                } else {
+                    // Server returned an error
+                    alert(data.message || 'Failed to verify OTP. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
+                alert('An error occurred while verifying the OTP. Please try again later.');
             }
         }
+
+
+
+        document.querySelector('form').addEventListener('submit', function (event) {
+            if (!allowforsubmission) {
+                event.preventDefault(); // Prevent form submission
+                alert('Form submission is not allowed. Please complete all required actions.');
+            }
+            else {
+                alert("form submitted")
+            }
+        });
+
 
     </script>
 
