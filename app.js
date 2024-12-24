@@ -21,37 +21,53 @@ const transporter = nodemailer.createTransport({
         pass: 'fvzc kjyx vufg tirc',   // Replace with your Gmail app password
     },
 });
-
 // Endpoint to send OTP via Gmail
 app.post('/send-otp', (req, res) => {
     const { email } = req.body;
 
+    // Validate email format
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ message: "Invalid email address" });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
-    otpStorage[email] = otp; // Store OTP for the email
-
-    console.log(`OTP for ${email}: ${otp}`); // For debugging
-
-    // Send OTP email
-    const mailOptions = {
-        from: 'donorhub2024@gmail.com',
-        to: email,
-        subject: 'Your OTP for Signup',
-        text: `Your OTP is: ${otp}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).json({ message: "Failed to send OTP" });
+    // Check if email already exists in the database
+    const query = 'SELECT * FROM users WHERE email = ?';
+    db.query(query, [email], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Database error" });
         }
-        console.log(`OTP sent to ${email}: ${otp}`);
-        res.json({ otp }); // Send OTP back to the client for storage
+
+        if (results.length > 0) {
+            // Email already exists
+            return res.status(409).json({ message: "Email already exists" });
+        } else {
+            // Email does not exist, proceed to generate and send OTP
+            const otp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
+            otpStorage[email] = otp; // Store OTP for the email
+
+            console.log(`OTP for ${email}: ${otp}`); // For debugging
+
+            // Send OTP email
+            const mailOptions = {
+                from: 'donorhub2024@gmail.com',
+                to: email,
+                subject: 'Your OTP for Signup',
+                text: `Your OTP is: ${otp}`,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).json({ message: "Failed to send OTP" });
+                }
+                console.log(`OTP sent to ${email}: ${otp}`);
+                res.json({ message: "OTP sent successfully" });
+            });
+        }
     });
 });
+
 
 // Endpoint to verify OTP
 app.post('/verify-otp', (req, res) => {
