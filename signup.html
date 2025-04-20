@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Signup Form</title>
+    <link rel="stylesheet" href="sign.css">
+
+    <style>
+        .form-container {
+            max-width: 100%;
+            width: 340px;
+            border-radius: 0.75rem;
+            background-color: rgba(17, 24, 39, 1);
+
+            padding-right: 2.8rem;
+            color: rgba(243, 244, 246, 1);
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 700;
+        }
+
+        .form {
+            margin-top: 1.5rem;
+        }
+
+        .input-group {
+            margin-top: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: rgba(156, 163, 175, 1);
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            border-radius: 0.375rem;
+            border: 1px solid rgba(55, 65, 81, 1);
+            outline: 0;
+            background-color: rgba(17, 24, 39, 1);
+            padding: 0.5rem;
+            color: rgba(243, 244, 246, 1);
+        }
+
+        .input-group input:focus {
+            border-color: rgba(167, 139, 250);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .button {
+            display: block;
+            width: 105%;
+            background-color: rgba(167, 139, 250, 1);
+            padding: 0.5rem 0.5rem;
+            text-align: center;
+            color: rgba(17, 24, 39, 1);
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            margin-top: 4%;
+        }
+
+        .otp {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .otp input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid rgba(55, 65, 81, 1);
+            border-radius: 0.375rem;
+            background-color: rgba(17, 24, 39, 1);
+            color: rgba(243, 244, 246, 1);
+        }
+
+        a {
+            color: rgba(167, 139, 250, 1);
+            font-size: 18px;
+        }
+
+        a:hover {
+            color: white;
+        }
+
+        @media (max-width: 500px) {
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+
+        .otp-group {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="signup-form">
+        <div class="form-container">
+            <p class="title">Sign Up</p>
+            <form class="form" id="signupForm">
+                <div class="input-group">
+                    <label for="username">Name</label>
+                    <input placeholder="" id="username" name="username" type="text" />
+                    <p class="error-message" id="usernameError"></p>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="phone">Phone</label>
+                    <input placeholder="" id="phone" name="phone" type="phone" minlength="10" maxlength="10" />
+                    <p class="error-message" id="phoneError"></p>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input placeholder="" id="email" name="email" type="email" />
+                    <p class="error-message" id="emailError"></p>
+                </div>
+
+                <button type="button" class="button" onclick="sendOtp()">Send OTP</button>
+
+
+                <div class="input-group otp-group">
+                    <label for="otp">Enter OTP</label>
+                    <div class="otp">
+                        <input type="text" maxlength="1" id="otp1" />
+                        <input type="text" maxlength="1" id="otp2" />
+                        <input type="text" maxlength="1" id="otp3" />
+                        <input type="text" maxlength="1" id="otp4" />
+                        <input type="text" maxlength="1" id="otp5" />
+                        <input type="text" maxlength="1" id="otp6" />
+                    </div>
+                    <p class="error-message" id="otpError"></p>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input placeholder="" id="password" name="password" type="password" />
+                    <p class="error-message" id="passwordError"></p>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirmpassword">Confirm Password</label>
+                    <input placeholder="" id="confirmpassword" name="confirmpassword" type="password" />
+                    <p class="error-message" id="confirmpasswordError"></p>
+                </div>
+                <div class="social-message">
+                    <div class="line"></div>
+                    <p class="message"><a href="login.html">Login</a> if you have an account already?</p>
+                    <div class="line"></div>
+                </div>
+                <button type="submit" class="button">Submit</button>
+            </form>
+        </div>
+    </div>
+    <script src="../config.js"></script>
+    <script>
+
+        document.querySelectorAll('.otp input').forEach((input, index, inputs) => {
+            input.addEventListener('input', (event) => {
+                if (event.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+
+                const otp = Array.from(inputs).map((input) => input.value).join('');
+                if (otp.length === inputs.length && otp.split('').every((digit) => digit !== '')) {
+                    verifyOtp();
+                }
+            });
+
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Backspace' && event.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+
+        function validateEmail() {
+            isValid = true
+            const email = document.getElementById('email').value.trim();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@mcc\.edu\.in$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById('emailError').textContent = "Please enter a valid email address.";
+                isValid = false;
+            }
+            return isValid
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+
+            document.querySelectorAll('.error-message').forEach(e => e.textContent = "");
+            console.log('hi')
+
+            const username = document.getElementById('username').value.trim();
+            if (username === "") {
+                document.getElementById('usernameError').textContent = "Name is required.";
+                isValid = false;
+            }
+
+
+            const phone = document.getElementById('phone').value.trim();
+            const phonePattern = /^[0-9]{10}$/;
+            if (!phonePattern.test(phone)) {
+                document.getElementById('phoneError').textContent = "Please enter a valid 10-digit phone number.";
+                isValid = false;
+            }
+
+
+            const email = document.getElementById('email').value.trim();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@mcc\.edu\.in$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById('emailError').textContent = "Please enter a valid email address.";
+                isValid = false;
+            }
+
+
+
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmpassword').value.trim();
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmpasswordError');
+
+
+            passwordError.textContent = '';
+            confirmPasswordError.textContent = '';
+
+
+            const passwordCriteria = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
+
+            if (!password) {
+                passwordError.textContent = 'Password is required.';
+                isValid = false;
+            } else if (!passwordCriteria.test(password)) {
+
+                passwordError.textContent =
+                    'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+                isValid = false;
+            }
+
+
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = 'Please confirm your password.';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                isValid = false;
+            }
+
+
+
+
+            return isValid;
+
+        }
+
+        document.querySelectorAll(".form-input, input[type='file'], select").forEach(input => {
+            input.addEventListener("input", removeError);
+            input.addEventListener("change", removeError);
+
+            function removeError(e) {
+                const el = e.target;
+                el.classList.remove("error-border");
+
+                const errorMsg = el.parentNode.querySelector(".error-message");
+                if (errorMsg) {
+                    errorMsg.textContent = "";
+                }
+            }
+        });
+
+
+
+
+        var allowforsubmission = false
+        function openotbox() {
+            const otpContainer = document.querySelector('.otp-group');
+            if (otpContainer.style.display === 'block') {
+                otpContainer.style.display = 'none';
+            } else {
+                otpContainer.style.display = 'block';
+            }
+        }
+
+        async function sendOtp() {
+
+
+            if (validateEmail()) {
+                const email = document.getElementById('email').value;
+
+
+                const response = await fetch(`${window.API_URL}/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log('OTP sent:', data.otp);
+                    localStorage.setItem('otp', data.otp);
+                    alert('OTP sent successfully!');
+                    openotbox()
+                } else {
+                    alert(data.message);
+                }
+            }
+
+        }
+
+
+        async function verifyOtp() {
+            const otp = [
+                document.getElementById('otp1').value,
+                document.getElementById('otp2').value,
+                document.getElementById('otp3').value,
+                document.getElementById('otp4').value,
+                document.getElementById('otp5').value,
+                document.getElementById('otp6').value
+            ].join('');
+
+            const email = document.getElementById('email').value.trim();
+
+
+
+            try {
+                const response = await fetch(`${window.API_URL}/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                    localStorage.removeItem('otp');
+                    openotbox()
+                    allowforsubmission = true
+
+                } else {
+                    alert(data.message || 'Failed to verify OTP. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
+                alert('An error occurred while verifying the OTP. Please try again later.');
+            }
+        }
+
+
+
+        document.querySelector('form').addEventListener('submit', async function (event) {
+            validateForm()
+            if (!allowforsubmission) {
+                event.preventDefault();
+            } else {
+                event.preventDefault();
+                alert('Form submitted! Saving to database...');
+
+                const formData = {
+                    username: document.getElementById('username').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value.trim(),
+                };
+
+                try {
+                    const response = await fetch(`${window.API_URL}/submit-form`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Form details saved successfully!');
+                        window.location.href = "login.html";
+                    } else {
+                        alert(`Failed to save form details: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred while submitting the form. Please try again.');
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="post.css">
+    <link rel="stylesheet" href="/donorhub/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .comments-section {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .comment {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+
+
+
+        .comments-section {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .comment {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .comment-input-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .comment-input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .comment-submit {
+            padding: 6px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .comment-submit:hover {
+            background: #0056b3;
+        }
+
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .share-option {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 4px;
+            background: #f0f0f0;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .share-option:hover {
+            background: #e0e0e0;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .action-button {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-button:hover {
+            background: #e0e0e0;
+        }
+
+        .comment-count {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .comments-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+
+
+
+        .post-actions-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #666;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-content {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .dropdown-content.show {
+            display: block;
+
+        }
+
+        .dropdown-item {
+            width: 100%;
+            padding: 8px 16px;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+
+        #requestOptionsPage {
+            display: none;
+
+        }
+
+        #postContainer-all {
+            display: block;
+        }
+
+        .confirm-modal {
+            display: none;
+
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .confirm-modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .confirm-yes,
+        .confirm-no {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-yes {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .confirm-no {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+
+
+        /*create button*/
+        .create-post-button {
+            position: fixed;
+            /* Keeps it in place */
+            bottom: 20px;
+            /* Adjust as needed */
+            right: 20px;
+            /* Adjust as needed */
+            width: 50px;
+            /* Size of the button */
+            height: 50px;
+            background-color: green;
+            /* Green background */
+            color: white;
+            /* White plus icon */
+            border: none;
+            border-radius: 50%;
+            /* Makes it circular */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            /* Adjust plus symbol size */
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s;
+        }
+
+        .create-post-button:hover {
+            background-color: darkgreen;
+            transform: scale(1.1);
+
+        }
+
+        .create-post-button i {
+            font-size: 24px;
+
+        }
+
+        #postContainer-clothrequest {
+            display: none;
+        }
+
+        #postContainer-foodrequest {
+            display: none;
+        }
+
+        #postContainer-blood {
+            display: none;
+        }
+
+        #postContainer-clothdonate {
+            display: none;
+        }
+
+        #postContainer-fooddonate {
+            display: none;
+        }
+
+        #postContainer-clothrequest {
+            display: none;
+        }
+
+
+        .post {
+            background-color: white;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 1px;
+        }
+
+        .time {
+            font-size: 0.75rem;
+            color: #777;
+        }
+
+
+        .post-image {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+            max-height: 200px;
+        }
+
+        .post-image img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+
+        .post p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .post-actions button {
+            font-size: 0.8rem;
+            padding: 3px;
+        }
+
+
+        .post-actions-top {
+            display: flex;
+            align-items: center;
+
+
+        }
+
+        .post-type {
+            font-weight: bold;
+            color: #ff6666;
+            font-size: 18px;
+
+        }
+
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            background: none;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #ffcccc;
+        }
+
+
+        .post-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+
+
+        }
+
+
+
+        .post-content {
+            margin-top: 5px;
+        }
+
+        .post-content h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .post-content p {
+            margin: 2px 0;
+            font-size: 14px;
+        }
+
+        .post-content strong {
+            font-weight: bold;
+            color: #333;
+        }
+
+
+
+        .post-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .share-menu {
+            display: none;
+            position: absolute;
+            background: grey;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            top: 40px;
+            left: 0;
+            z-index: 100;
+        }
+
+        .share-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+
+        .share-menu.active {
+            display: block;
+        }
+
+
+        .share-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+
+
+        .share-menu {
+            background: grey;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            min-width: 300px;
+            max-width: 400px;
+            position: relative;
+            z-index: 1001;
+        }
+
+
+
+
+        .share-menu .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+
+
+        .share-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .share-option i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+
+        .fa-whatsapp {
+            color: #25D366;
+        }
+
+        .fa-facebook {
+            color: #1877F2;
+        }
+
+        .fa-instagram {
+            color: #E4405F;
+        }
+
+        .fa-twitter {
+            color: #1DA1F2;
+        }
+
+        .post {
+            position: relative;
+        }
+
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 20px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .like-btn:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .like-btn.liked {
+            color: red;
+        }
+
+
+        .navbar-wrapper .navbar {
+            background-color: rgba(52, 58, 64, 0.9);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .navbar-wrapper .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .navbar-wrapper .navbar-brand {
+
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navbar-brand {
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            font-size: 30px;
+            font-family: "Overpass", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        .navbar-wrapper .navbar-brand:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .navbar-wrapper .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-wrapper .nav-links li {
+            margin-left: 20px;
+        }
+
+        .navbar-wrapper .nav-links li a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 12px;
+            transition: color 0.2s ease;
+        }
+
+        .navbar-wrapper .nav-links li a:hover {
+            color: white;
+        }
+
+
+        .navbar-wrapper .nav-toggle {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .feed-container {
+            width: 600px;
+            margin-left: 30%;
+        }
+
+        /* Mobile responsive styles */
+        @media screen and (max-width: 768px) {
+            .navbar-wrapper .nav-toggle {
+                display: block;
+            }
+
+            .navbar-wrapper .navbar-container {
+                padding: 0 15px;
+            }
+
+            .navbar-wrapper .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background-color: rgba(52, 58, 64, 0.95);
+                padding: 0;
+                margin: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                z-index: 2000;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .navbar-wrapper .nav-links.active {
+                max-height: 900px;
+            }
+
+            .navbar-wrapper .nav-links li {
+                margin: 0;
+                width: 100%;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .navbar-wrapper .nav-links li:last-child {
+                border-bottom: none;
+            }
+
+            .navbar-wrapper .nav-links li a {
+                display: block;
+                padding: 15px;
+                font-size: 1rem;
+            }
+
+            .navbar-wrapper .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-wrapper .navbar {
+                position: relative;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar-wrapper">
+        <nav class="navbar">
+            <div class="navbar-container">
+                <a class="navbar-brand" href="index.html" style="font-size: 2rem;">DONORHUB</a>
+                <button class="nav-toggle">☰</button>
+                <ul class="nav-links">
+                    <li><a href="../index.html">HOME</a></li>
+                    <li><a href="feed.html">COMMUNITY</li>
+                    <li><a href="post.html">DONATE</a></li>
+                    <li><a href="post.html">REQUEST</a></li>
+                    <li><a href="../index.html#about">ABOUT US</a></li>
+                    <li><a href="../index.html#contact">CONTACT</a></li>
+
+
+                    <li><a href="../user.html"><i class="fas fa-user"></i></a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div id="feed" class="min-h-screen">
+
+
+
+        <div class="feed-container">
+            <div class="feed-header">
+
+                <div class="feed-filters">
+                    <select id="postTypeFilter">
+                        <option value="all">All Posts</option>
+                        <!-- Request Types -->
+                        <option value="blood">Blood Requests</option>
+                        <option value="food">Food Requests</option>
+                        <option value="cloth">Cloth Requests</option>
+                        <!-- Donation Types -->
+                        <option value="food-donate">Food Donations</option>
+                        <option value="cloth-donate">Cloth Donations</option>
+                    </select>
+                </div>
+            </div>
+            <div id="posts">
+
+            </div>
+            <div id="postContainer-all"></div>
+            <div id="postContainer-blood"></div>
+            <div id="postContainer-foodrequest"></div>
+            <div id="postContainer-clothrequest"></div>
+            <div id="postContainer-fooddonate"></div>
+            <div id="postContainer-clothdonate"></div>
+
+            <button class="create-post-button" id="createPostBtn">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+    </div>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="share-modal" id="shareModal">
+        <h3 style="margin-bottom: 15px;">Share this post</h3>
+        <button class="share-option" data-platform="whatsapp">Share on WhatsApp</button>
+        <button class="share-option" data-platform="facebook">Share on Facebook</button>
+        <button class="share-option" data-platform="twitter">Share on Twitter</button>
+        <button class="share-option" data-platform="copy">Copy Link</button>
+    </div>
+
+    <!-- Confirm Modal (Delete Alert Box) -->
+    <div class="confirm-modal" id="confirmModal">
+        <h3>Delete Post</h3>
+        <p>Are you sure you want to delete this post?</p>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-yes" id="confirmYes">Yes, Delete</button>
+            <button class="confirm-no" id="confirmNo">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Request Options Page -->
+    <div id="requestOptionsPage" class="min-h-screen">
+        <div class="container1">
+            <div class="request-type-grid">
+                <button id="donateOptionBtn" class="request-type-button">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                </button>
+                <button id="requestOptionBtn" class="request-type-button">
+                    <i class="fas fa-donate"></i> Request
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="../config.js"></script>
+    <script src="feed.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Get the toggle button
+            const navToggle = document.querySelector('.navbar-wrapper .nav-toggle');
+
+            // Get the navigation links
+            const navLinks = document.querySelector('.navbar-wrapper .nav-links');
+
+            // Check if elements exist before adding event listeners
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', function () {
+                    navLinks.classList.toggle('active');
+                });
+
+                // Close the menu when clicking outside
+                document.addEventListener('click', function (event) {
+                    const isClickInsideNav = navToggle.contains(event.target) ||
+                        navLinks.contains(event.target);
+
+                    if (!isClickInsideNav && navLinks.classList.contains('active')) {
+                        navLinks.classList.remove('active');
+                    }
+                });
+            } else {
+                console.error('Navigation elements not found. Check your HTML structure.');
+            }
+            const userId = sessionStorage.getItem("user_id"); // Check if user_id is stored in sessionStorage
+
+            if (userId) {
+                document.querySelector('.nav-link[href="../login.html"]').parentElement.style.display = "none"; // Hide Login
+            } else {
+                document.querySelector('.nav-link[href="../user.html"]').parentElement.style.display = "none"; // Hide Profile
+            }
+
+
+        });
+
+
+
+        const feedHandler = new FeedHandler();
+        const postsContainer = document.getElementById('posts');
+        const postTypeFilter = document.getElementById('postTypeFilter');
+        const createPostBtn = document.getElementById("createPostBtn");
+
+
+        // Add click event for create post button
+        createPostBtn.addEventListener("click", () => {
+            requestOptionsPage.style.display = "block";
+        });
+
+        // Add click event for create post button
+        createPostBtn.addEventListener("click", () => {
+            window.location.href = "post.html";
+        });
+
+        const requestOptionsPage = document.createElement("div");
+        requestOptionsPage.id = "requestOptionsPage";
+        requestOptionsPage.classList.add("min-h-screen");
+        requestOptionsPage.innerHTML = `
+                         <div class="container1">
+
+                         <div class="request-type-grid">
+                        <button id="donateOptionBtn" class="request-type-button">
+                            <i class="fas fa-hand-holding-heart"></i> Donate
+                        </button>
+                        <button id="requestOptionBtn" class="request-type-button">
+                            <i class="fas fa-donate"></i> Request
+                        </button>
+                            </div>
+                          </div>
+                               `;
+        document.body.insertBefore(requestOptionsPage, feed.nextSibling);
+        document.getElementById("postTypeFilter").addEventListener("change", function () {
+            const selectedValue = this.value;
+            const postContainer = document.getElementById("postContainer-blood");
+            const postContainer1 = document.getElementById("postContainer-foodrequest");
+            const postContainer2 = document.getElementById("postContainer-clothrequest");
+            const postContainer3 = document.getElementById("postContainer-fooddonate");
+            const postContainer4 = document.getElementById("postContainer-clothdonate");
+            const postContainer5 = document.getElementById("postContainer-all");
+
+
+
+
+
+            if (selectedValue === "blood") {
+                postContainer.style.display = "block"; // Show container
+            }
+            else {
+                postContainer.style.display = "none"; // Hide container
+            }
+            if (selectedValue === "food") {
+                postContainer1.style.display = "block"; // Show container
+            }
+            else {
+                postContainer1.style.display = "none"; // Hide container
+            }
+            if (selectedValue === "cloth") {
+                postContainer2.style.display = "block"; // Show container
+            }
+            else {
+                postContainer2.style.display = "none"; // Hide container
+            }
+            if (selectedValue === "food-donate") {
+                postContainer3.style.display = "block"; // Show container
+            }
+            else {
+                postContainer3.style.display = "none"; // Hide container
+            }
+            if (selectedValue === "cloth-donate") {
+                postContainer4.style.display = "block"; // Show container
+            }
+            else {
+                postContainer4.style.display = "none"; // Hide container
+            }
+            if (selectedValue === "all") {
+                postContainer5.style.display = "block";
+                postContainer.style.display = "none";
+                postContainer4.style.display = "none";
+                postContainer3.style.display = "none";
+                postContainer2.style.display = "none";
+                postContainer1.style.display = "none";
+                // Show container
+            }
+            else {
+                postContainer5.style.display = "none"; // Hide container
+            }
+
+
+
+        });
+
+        function openShareMenu(button) {
+            // Remove existing overlay if any
+            let existingOverlay = document.querySelector(".share-menu-overlay");
+            if (existingOverlay) existingOverlay.remove();
+
+            // Create overlay
+            let overlay = document.createElement("div");
+            overlay.className = "share-menu-overlay";
+
+            // Get the post container
+            let post = button.closest(".post");
+
+            // Get the share menu inside the clicked post
+            let shareMenu = post.querySelector(".share-menu");
+
+            // Clone share menu and ensure it appears properly
+            let newMenu = shareMenu.cloneNode(true);
+            newMenu.style.display = "block"; // Make sure it's visible
+
+            // Add event listeners for share options
+            newMenu.querySelectorAll(".share-option").forEach((btn) => {
+                btn.addEventListener("click", (event) => {
+                    let platform = event.target.getAttribute("onclick").match(/'([^']+)'/)[1];
+                    sharePost(platform);
+                });
+            });
+
+            // Close button
+            let closeButton = document.createElement("button");
+            closeButton.className = "close-btn";
+            closeButton.innerHTML = "✖";
+            closeButton.onclick = () => document.body.removeChild(overlay);
+
+            newMenu.prepend(closeButton);
+            overlay.appendChild(newMenu);
+
+
+            let postRect = post.getBoundingClientRect();
+            newMenu.style.position = "absolute";
+            newMenu.style.top = `${postRect.top + window.scrollY + postRect.height / 2 - 100}px`;
+            newMenu.style.left = `${postRect.left + window.scrollX + postRect.width / 2 - 150}px`;
+
+
+            overlay.addEventListener("click", (event) => {
+                if (event.target === overlay) {
+                    document.body.removeChild(overlay);
+                    post.querySelector(".share-menu").style.display = "none"; // Only close the share menu for this post
+                }
+            });
+
+
+            document.body.appendChild(overlay);
+
+            if (!shareMenu) {
+                console.error("Share menu not found inside post!", post);
+                return;
+            }
+
+            if (shareMenu.style.display === "block") {
+                shareMenu.style.display = "none";
+            } else {
+
+                document.querySelectorAll(".share-menu").forEach((menu) => {
+                    menu.style.display = "none";
+                });
+
+                shareMenu.style.display = "block";
+            }
+        }
+
+
+
+
+
+
+        function sharePost(platform, button) {
+            const post = button.closest('.post');
+            const postId = post.dataset.postId;
+            const url = `${window.location.origin}/post/${postId}`;
+
+            switch (platform) {
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodeURIComponent(url)}`);
+                    break;
+                case 'facebook':
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+                    break;
+                case 'instagram':
+                    alert("Instagram does not support direct link sharing.");
+                    break;
+                case 'twitter':
+                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`);
+                    break;
+            }
+
+            post.querySelector('.share-menu').style.display = 'none';
+        }
+
+        document.addEventListener("click", function (event) {
+            if (event.target.closest(".like-btn")) {
+                let button = event.target.closest(".like-btn");
+                let heart = button.querySelector(".heart");
+                let likeCountElement = button.querySelector(".like-count");
+
+                let currentLikes = parseInt(likeCountElement.textContent);
+                let liked = heart.textContent === "❤";
+
+                if (liked) {
+                    heart.textContent = "♡"; // Unliked
+                    currentLikes--;
+                } else {
+                    heart.textContent = "❤"; // Liked
+                    currentLikes++;
+                }
+
+                likeCountElement.textContent = currentLikes;
+            }
+        });
+
+        function timeAgo(timestamp) {
+            const now = new Date();
+            const postDate = new Date(timestamp);
+            const seconds = Math.floor((now - postDate) / 1000);
+
+            if (seconds < 60) return "Just now";
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            const weeks = Math.floor(days / 7);
+            if (weeks < 4) return `${weeks}w ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months}mo ago`;
+            const years = Math.floor(days / 365);
+            return `${years}y ago`;
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch(`${window.API_URL}/api/posts/get-all-posts`)
+                .then(response => response.json())
+                .then(posts => {
+                    console.log("Received posts:", posts);
+
+
+                    if (!Array.isArray(posts)) {
+                        console.error("API returned an unexpected format:", posts);
+                        return;
+                    }
+
+                    const postContainer = document.getElementById("postContainer-all");
+
+                    if (!postContainer) {
+                        console.error("Element with ID 'postContainer-all' not found");
+                        return;
+                    }
+
+                    postContainer.innerHTML = ""; // Clear previous posts
+
+                    posts.forEach(post => {
+                        //let imageSrc = "h.png"; // Default image
+
+
+                        if (post.source === "blood_requests" && post.photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.photo}`;
+                        } else if (post.source === "food_donates" && post.person_photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.person_photo}`;
+                        } else if (post.source === "cloth_donates" && post.cloth_photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.cloth_photo}`;
+                        }
+
+
+
+                        // Function to format time as HH:MM AM/PM
+                        function formatTime(timeString) {
+                            if (!timeString) return "N/A";
+
+                            const dateTimeString = `1970-01-01T${timeString}`;
+                            const dateTime = new Date(dateTimeString);
+
+                            if (isNaN(dateTime)) return "Invalid Time";
+
+                            return dateTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                        }
+
+                        function formatDate(isoDate) {
+                            if (!isoDate) return "N/A";
+
+                            const date = new Date(isoDate);
+
+                            if (isNaN(date)) return "Invalid Date";
+
+                            return date.toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric"
+                            });
+                        }
+
+
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+                        console.log("Raw time:", post.deadline_time);
+                        console.log("Formatted time:", formatTime(post.deadline_time));
+
+
+
+
+                        let postContent = `
+               <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time" data-timestamp="${post.created_at}">
+    ${timeAgo(post.created_at)}
+</div>
+
+        </div>
+        
+                
+            `;
+
+                        if (post.source === "blood_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Blood"}</div>
+            
+        </div>
+    </div>
+                <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+                     <p><strong>Blood Group:</strong> ${post.type}</p>
+                            <p><strong>Patient Name:</strong> ${post.name}</p>
+                            <p><strong>Age:</strong> ${post.age}</p>
+                            <p><strong>Gender:</strong> ${post.gender}</p>
+                            <p><strong>Medical Condition:</strong> ${post.medical_condition}</p>
+                            <p><strong>Hospital:</strong> ${post.location}</p>
+                            <p><strong>Required Before:</strong> ${formatDate(post.deadline_date)} ${formatTime(post.deadline_time)}</p>
+                            `;
+                        } else if (post.source === "food_donates") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food"}</div>
+            
+        </div>
+    </div>
+                <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+
+                      <p><strong>Food TYpe:</strong> ${post.food_type}</p>
+                            <p><strong>Food quantity:</strong> ${post.food_quantity}</p>
+                         
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Diet info:</strong> ${post.diet_info}</p>
+                           
+                            <p><strong>Required Before:</strong> ${formatTime(post.start_time)} - ${formatTime(post.end_time)}</p>
+                          
+                `;
+                        } else if (post.source === "cloth_donates") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+            
+        </div>
+    </div>
+                 <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+
+                    <p><strong>Cloth Type:</strong> ${post.cloth_type || "N/A"}</p>
+                    <p><strong>Quantity:</strong> ${post.cloth_quantity || "N/A"}</p>
+                    <p><strong>Cloth condition:</strong> ${post.cloth_condition || "N/A"}</p>
+                    <p><strong>Cloth quantity:</strong> ${post.cloth_quantity || "N/A"}</p>
+                    <p><strong>Size:</strong> ${post.cloth_size || "N/A"}</p>
+                `;
+
+                        } else if (post.source === "cloth_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+
+        </div>
+    </div>
+                
+                    <p><strong>Receipient count:</strong> ${post.age || "N/A"}</p>
+                    <p><strong>Age group:</strong> ${post.age_group || "N/A"}</p>
+                     <p><strong>Number of People in Needed:</strong> ${post.age}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${formatDate(post.deadline_date)} ${formatTime(post.deadline_time)}</p>
+                            
+                            <p><strong>Reason:</strong> ${post.need_reason}</p>
+                            <p><strong>Gender:</strong> ${post.gender}</p>
+                `;
+
+                        } else if (post.source === "food_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food"}</div>
+           
+        </div>
+    </div>
+                     <p><strong>Food Type:</strong> ${post.food_type}</p>
+                            <p><strong>Number of People in Needed:</strong> ${post.num_people_needed}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${formatDate(post.deadline_date)} ${formatTime(post.deadline_time)}</p>
+                            <p><strong>Status:</strong> ${post.status}</p>
+                            <p><strong>Verified:</strong> ${post.verified}</p>
+                `;
+                        }
+
+
+                        postContent += `
+             
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+            `;
+
+                        postElement.innerHTML = postContent;
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+
+
+            fetch(`${window.API_URL}/api/posts/get-posts-blood`)
+                .then(response => response.json())
+                .then(posts => {
+                    const postContainer = document.getElementById("postContainer-blood");
+                    postContainer.innerHTML = "";
+
+                    posts.forEach(post => {
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+                        const imageSrc = post.patient_photo
+                            ? `data:image/jpeg;base64,${post.patient_photo}`
+                            : "default-placeholder.jpg";
+
+                        postElement.innerHTML = `
+                           <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time">${post.created_at || "Unknown Time"}</div>
+        </div>
+        <div class="post-actions-top">
+            <div class="post-type">${"Blood" || post.blood_group}</div>
+            
+        </div>
+    </div>
+                          <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+                            <p><strong>Blood Group:</strong> ${post.blood_group}</p>
+                            <p><strong>Patient Name:</strong> ${post.patient_name}</p>
+                            <p><strong>Age:</strong> ${post.patient_age}</p>
+                            <p><strong>Gender:</strong> ${post.patient_gender}</p>
+                            <p><strong>Medical Condition:</strong> ${post.medical_condition}</p>
+                            <p><strong>Hospital:</strong> ${post.hospital_location}</p>
+                            <p><strong>Required Before:</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                            <p><strong>Status:</strong> ${post.status}</p>
+                            <p><strong>Verified:</strong> ${post.verified}</p>
+                                <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+              
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+                        `;
+
+
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+            fetch(`${window.API_URL}/api/posts/get-posts-foodrequests`)
+                .then(response => response.json())
+                .then(posts => {
+                    const postContainer = document.getElementById("postContainer-foodrequest");
+                    postContainer.innerHTML = "";
+
+
+                    posts.forEach(post => {
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+
+                        postElement.innerHTML = `
+
+
+                          <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time">${post.created_at || "Unknown Time"}</div>
+        </div>
+        <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food"}</div>
+           
+        </div>
+    </div>
+                         <h2>${post.title}</h2>
+                            <p><strong>Food Type:</strong> ${post.food_type}</p>
+                            <p><strong>Number of People in Needed:</strong> ${post.num_people_needed}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                           <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+           
+                        `;
+
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+            fetch(`${window.API_URL}/api/posts/get-posts-clothrequests`)
+                .then(response => response.json())
+                .then(posts => {
+                    const postContainer = document.getElementById("postContainer-clothrequest");
+                    postContainer.innerHTML = "";
+
+                    posts.forEach(post => {
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+
+
+                        postElement.innerHTML = `
+                             <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time">${post.created_at || "Unknown Time"}</div>
+        </div>
+        <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+            
+        </div>
+    </div>
+     <h2>${post.title}</h2>
+                            <p><strong>Food Type:</strong> ${post.food_type}</p>
+                            <p><strong>Number of People in Needed:</strong> ${post.recipient_count}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                           
+                            <p><strong>Reason:</strong> ${post.need_reason}</p>
+                            
+                            <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+           
+                        `;
+
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+
+            fetch(`${window.API_URL}/api/posts/get-posts-fooddonates`)
+                .then(response => response.json())
+                .then(posts => {
+                    const postContainer = document.getElementById("postContainer-fooddonate");
+                    postContainer.innerHTML = "";
+
+                    posts.forEach(post => {
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+                        const imageSrc = post.person_photo
+                            ? `data:image/jpeg;base64,${post.person_photo}`
+                            : "default-placeholder.jpg";
+
+                        postElement.innerHTML = `
+                            <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time">${post.created_at || "Unknown Time"}</div>
+        </div>
+        <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food" }</div>
+         
+        </div>
+    </div>
+                             <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+                 <h2>${post.title}</h2>
+                            <p><strong>Food TYpe:</strong> ${post.food_type}</p>
+                            <p><strong>Food quantity:</strong> ${post.food_quantity}</p>
+                         
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Diet info:</strong> ${post.diet_info}</p>
+                           
+                            <p><strong>Required Before:</strong> ${post.start_time} ${post.end_time}</p>
+                            <p><strong>Status:</strong> ${post.status}</p>
+                            <p><strong>Verified:</strong> ${post.verified}</p>
+                       <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+            `;
+
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+
+            fetch(`${window.API_URL}/api/posts/get-posts-clothdonates`)
+                .then(response => response.json())
+                .then(posts => {
+                    const postContainer = document.getElementById("postContainer-clothdonate");
+                    postContainer.innerHTML = "";
+
+                    posts.forEach(post => {
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+                        const imageSrc = post.cloth_photo
+                            ? `data:image/jpeg;base64,${post.cloth_photo}`
+                            : "default-placeholder.jpg";
+                        postElement.innerHTML = `
+             <div class="post-header">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time">${post.created_at || "Unknown Time"}</div>
+        </div>
+        <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+            
+        </div>
+    </div>
+            
+                
+               <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+                 <h2>${post.title}</h2>
+                <p><strong>Cloth Type:</strong> ${post.cloth_type || "N/A"}</p>
+                <p><strong>Cloth Quantity:</strong> ${post.cloth_quantity || "N/A"}</p>
+                <p><strong>Cloth Condition:</strong> ${post.cloth_condition || "N/A"}</p>
+                <p><strong>Cloth Size:</strong> ${post.cloth_size || "N/A"}</p>
+                <p><strong>Location:</strong> ${post.location || "N/A"}</p>
+                <p><strong>Contact Details:</strong> ${post.contact_details || "N/A"}</p>
+                <p><strong>Delivery Options:</strong> ${post.delivery_options || "N/A"}</p>
+                <p><strong>Available Time:</strong> ${post.start_time || "N/A"} - ${post.end_time || "N/A"}</p>
+                <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+             
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+           
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+            `;
+
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+
+            document.querySelectorAll(".time").forEach((element) => {
+                const timestamp = element.getAttribute("data-timestamp");
+                if (timestamp) {
+                    element.innerText = timeAgo(timestamp);
+                }
+            });
+
+
+        });
+
+    </script>
+
+    <script>
+
+    </script>
+</body>
+
+</html>

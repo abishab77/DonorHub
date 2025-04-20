@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Request</title>
+    <link rel="stylesheet" href="request.css">
+    <link rel="stylesheet" href="post.css">
+    <script src="feed.js"></script>
+    <style>
+        .card-title {
+            color: white
+        }
+
+        .subtitle {
+            color: white
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bloodRequestForm" class="hidden min-h-screen">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Blood Donation Request</h2>
+                <p class="subtitle">Request blood donation for patient in need</p>
+            </div>
+            <div class="card-content">
+                <form id="bloodForm" class="post-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Title</label>
+                        <input id="title" type="text" class="form-input" name="title" placeholder="Enter request title">
+                    </div>
+
+
+
+
+                    <!-- Blood Group Required -->
+                    <div class="form-group">
+                        <label for="bloodGroup" class="form-label">Blood Group Required</label>
+                        <select id="bloodGroup" class="form-input" name="bloodGroup">
+                            <option value="">Select blood group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+
+                    <!-- Patient Name -->
+                    <div class="form-group">
+                        <label for="patientName" class="form-label">Patient Name</label>
+                        <input type="text" name="patientName" id="patientName" class="form-input"
+                            placeholder="Enter patient's full name">
+                    </div>
+
+                    <!-- Patient Photo -->
+                    <div class="form-group">
+                        <label for="photo" class="form-label">Patient Photo</label>
+                        <input type="file" id="photo" accept="image/*" name="photo" />
+                    </div>
+
+                    <!-- Age & Gender -->
+                    <div class="form-group">
+                        <label for="patientAge" class="form-label">Age</label>
+                        <input name="patientAge" type="number" id="patientAge" class="form-input" placeholder="Age">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientGender" class="form-label">Gender</label>
+                        <select id="patientGender" name="patientGender" class="form-input">
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Medical Condition -->
+                    <div class="form-group">
+                        <label for="medicalCondition" class="form-label">Medical Condition</label>
+                        <input type="text" id="medicalCondition" name="medicalCondition" class="form-input"
+                            placeholder="Enter patient's medical condition">
+                    </div>
+
+                    <!-- Hospital Location -->
+                    <div class="form-group">
+                        <label for="hospitalLocation" class="form-label">Hospital Location</label>
+                        <input type="text" id="hospitalLocation" class="form-input" name="hospitalLocation"
+                            placeholder="Enter hospital name and address">
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="form-group">
+                        <label for="contactDetails" class="form-label">Contact Details</label>
+                        <input type="text" name="contactDetails" id="contactDetails" class="form-input"
+                            placeholder="Enter contact number">
+                    </div>
+
+                    <!-- Required Before (Deadline) -->
+                    <div class="form-group">
+                        <label for="deadlineDate" class="form-label">Required Before (Date)</label>
+                        <input type="date" id="deadlineDate" class="form-input" name="deadlineDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadlineTime" class="form-label">Required Before (Time)</label>
+                        <input type="time" id="deadlineTime" class="form-input" name="deadlineTime">
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitBloodRequest" class="submit-button">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feed -->
+
+
+    <div id="shareModal" class="share-modal">
+        <div class="share-modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Share Post</h3>
+            <div class="share-option" data-platform="facebook">
+                <i class="fab fa-facebook"></i>
+                <span>Share on Facebook</span>
+            </div>
+            <div class="share-option" data-platform="twitter">
+                <i class="fab fa-twitter"></i>
+                <span>Share on Twitter</span>
+            </div>
+            <div class="share-option" data-platform="whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>Share on WhatsApp</span>
+            </div>
+            <div class="share-option" data-platform="copy">
+                <i class="fas fa-link"></i>
+                <span>Copy Link</span>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        function fetchAndDisplayImage(id) {
+            const imageElement = document.getElementById("patientImage");
+            imageElement.src = `http://localhost:5501/get-photo/${id}`; // Use the correct backend route
+            imageElement.style.display = "block"; // Make the image visible
+        }
+
+    </script>
+    <script src="../config.js"></script>
+    <script>
+
+
+
+        // client.js
+
+        let allowForSubmission = false;
+
+        // Error helper functions
+        function showError(inputElement, message) {
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "error";
+            errorDiv.style.color = "red";
+            errorDiv.style.fontSize = "13px";
+            errorDiv.textContent = message;
+            inputElement.parentElement.appendChild(errorDiv);
+        }
+
+        function clearErrors() {
+            document.querySelectorAll(".error").forEach((msg) => msg.remove());
+        }
+
+        // Blood form validation
+        function validateBloodForm() {
+            let isValid = true;
+            clearErrors();
+
+            const title = document.getElementById("title");
+            const bloodGroup = document.getElementById("bloodGroup");
+            const patientName = document.getElementById("patientName");
+            const photo = document.getElementById("photo");
+            const age = document.getElementById("patientAge");
+            const gender = document.getElementById("patientGender");
+            const condition = document.getElementById("medicalCondition");
+            const location = document.getElementById("hospitalLocation");
+            const contact = document.getElementById("contactDetails");
+            const deadlineDate = document.getElementById("deadlineDate");
+            const deadlineTime = document.getElementById("deadlineTime");
+
+            if (!title.value.trim()) {
+                showError(title, "Please enter a title.");
+                isValid = false;
+            }
+
+            if (!bloodGroup.value) {
+                showError(bloodGroup, "Please select a blood group.");
+                isValid = false;
+            }
+
+            if (!patientName.value.trim()) {
+                showError(patientName, "Please enter the patient's name.");
+                isValid = false;
+            }
+
+            if (!photo.files.length) {
+                showError(photo, "Please upload a patient photo.");
+                isValid = false;
+            }
+
+            if (!age.value || age.value <= 0) {
+                showError(age, "Please enter a valid age.");
+                isValid = false;
+            }
+
+            if (!gender.value) {
+                showError(gender, "Please select a gender.");
+                isValid = false;
+            }
+
+            if (!condition.value.trim()) {
+                showError(condition, "Please enter medical condition.");
+                isValid = false;
+            }
+
+            if (!location.value.trim()) {
+                showError(location, "Please enter the hospital location.");
+                isValid = false;
+            }
+
+            const contactPattern = /^\d{10}$/;
+            if (!contactPattern.test(contact.value.trim())) {
+                showError(contact, "Please enter a valid 10-digit contact number.");
+                isValid = false;
+            }
+
+            if (!deadlineDate.value) {
+                showError(deadlineDate, "Please select a deadline date.");
+                isValid = false;
+            }
+
+            if (!deadlineTime.value) {
+                showError(deadlineTime, "Please select a deadline time.");
+                isValid = false;
+            }
+
+            allowForSubmission = isValid;
+            return isValid;
+        }
+
+        // Combined DOMContentLoaded logic
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Ngrok URL:", window.API_URL);
+
+            // Accept request
+            document.getElementById("acceptBtn")?.addEventListener("click", () => {
+                fetch(`${window.API_URL}/accept-blood-request?requestId=123&userId=456`)
+                    .then(response => response.text())
+                    .then(data => alert("Accepted: " + data))
+                    .catch(error => console.error("Error:", error));
+            });
+
+            // Deny request
+            document.getElementById("denyBtn")?.addEventListener("click", () => {
+                fetch(`${window.API_URL}/deny-blood-request?requestId=123`)
+                    .then(response => response.text())
+                    .then(data => alert("Denied: " + data))
+                    .catch(error => console.error("Error:", error));
+            });
+
+            // Blood request form submission
+            const bloodForm = document.getElementById("bloodForm");
+            if (bloodForm) {
+                bloodForm.addEventListener("submit", async function (event) {
+                    event.preventDefault();
+
+                    if (!validateBloodForm()) return;
+
+                    const formData = new FormData(this);
+                    const userId = sessionStorage.getItem("user_id");
+
+                    if (!userId) {
+                        alert("User session expired. Please log in again.");
+                        return;
+                    }
+
+                    formData.append("user_id", userId);
+
+                    try {
+                        const response = await fetch(`${window.API_URL}/submit-blood-request`, {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        const result = await response.text();
+                        alert(result);
+                        window.location.href = "/post/feed.html";
+                    } catch (error) {
+                        console.error("Error submitting form:", error);
+                        alert("Failed to submit request");
+                    }
+                });
+            }
+        });
+
+
+
+    </script>
+</body>
+
+</html>

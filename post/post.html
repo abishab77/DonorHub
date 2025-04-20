@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donorhub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="post.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-type {
+            color: red;
+            font-weight: bold;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .action-buttons button {
+            margin-right: 10px;
+            background-color: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons button i {
+            margin-right: 5px;
+        }
+
+        .donate-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .donate-button:hover {
+            background-color: #218838;
+        }
+
+        .action-buttons button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .comments-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .comments-section.active {
+            display: block;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .comment {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .comment-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .share-modal.active {
+            display: flex;
+        }
+
+        .share-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .share-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+
+        .share-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .share-option i {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .create-post-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 100;
+        }
+
+        .create-post-button:hover {
+            transform: scale(1.1);
+            background-color: #218838;
+        }
+
+        .create-post-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Animation for form transitions */
+        .slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .slide-out {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--DonateForm-->
+    <!-- Donation Form -->
+    <div id="donationForm" class="min-h-screen hidden">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Make a Donation</h2>
+                <p class="subtitle">Donate items to help those in need</p>
+            </div>
+
+            <div class="card-content">
+                <form id="donationFormContent" class="post-form">
+                    <!-- Form Fields -->
+                    <div class="form-group">
+                        <label for="donationType" class="form-label">Donation Type</label>
+                        <select id="donationType" class="form-input">
+                            <option value="food">Food</option>
+                            <option value="clothes">Clothes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitDonation" class="submit-button">Submit Donation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Request Form -->
+    <div id="requestForm" class="min-h-screen hidden">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Create General Request</h2>
+                <p class="subtitle">Request donations for those in need</p>
+            </div>
+
+            <div class="card-content">
+                <form id="generalForm" class="post-form">
+                    <!-- Form Fields -->
+                    <div class="form-group">
+                        <label for="requestType" class="form-label">Request Type</label>
+                        <select id="requestType" class="form-input">
+                            <option value="blood">Blood</option>
+                            <option value="food">Food</option>
+                            <option value="clothes">Clothes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitGeneralRequest" class="submit-button">Next</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <!-- Feed -->
+    <div id="feed" class="min-h-screen">
+     <div class="container" id="cc">
+           
+        
+        <div class="request-type-grid">
+            <button id="donateOptionBtn" class="request-type-button">
+                <i class="fas fa-hand-holding-heart"></i> Donate
+            </button>
+            <button id="requestOptionBtn" class="request-type-button">
+                <i class="fas fa-donate"></i> Request
+            </button>
+                </div>
+            </div> 
+    </div>
+
+    <div id="shareModal" class="share-modal">
+        <div class="share-modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Share Post</h3>
+            <div class="share-option" data-platform="facebook">
+                <i class="fab fa-facebook"></i>
+                <span>Share on Facebook</span>
+            </div>
+            <div class="share-option" data-platform="twitter">
+                <i class="fab fa-twitter"></i>
+                <span>Share on Twitter</span>
+            </div>
+            <div class="share-option" data-platform="whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>Share on WhatsApp</span>
+            </div>
+            <div class="share-option" data-platform="copy">
+                <i class="fas fa-link"></i>
+                <span>Copy Link</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const requestForm = document.getElementById("requestForm");
+            const bloodRequestForm = document.getElementById("bloodRequestForm");
+            const feed = document.getElementById("feed");
+            const generalForm = document.getElementById("generalForm");
+            const bloodForm = document.getElementById("bloodForm");
+            const createPostBtn = document.getElementById("createPostBtn");
+            const donationForm = document.getElementById("donationForm");
+            const donateOptionBtn = document.getElementById("donateOptionBtn");
+            const requestOptionsPage = document.getElementById("requestOptionsPage");
+
+
+            // Initialize posts array and current ID
+
+
+      
+
+ 
+
+
+        
+
+
+
+            // Add event listener for request option button
+            document.getElementById("requestOptionBtn").addEventListener("click", () => {
+                const requestOptionsPage = document.getElementById("cc");
+                requestOptionsPage.classList.add("slide-out");
+                setTimeout(() => {
+                    requestOptionsPage.classList.add("hidden");
+                    requestOptionsPage.classList.remove("slide-out");
+                    requestForm.classList.remove("hidden");
+                    requestForm.classList.add("slide-in");
+                }, 300);
+            });
+
+            // Initially hide the request options page
+            // requestOptionsPage.classList.add("hidden");
+            let generalFormData = {};
+
+            document.getElementById("submitGeneralRequest").addEventListener("click", (e) => {
+                e.preventDefault();
+
+                // Get the selected request type
+                const requestType = document.getElementById("requestType").value;
+
+                // Redirect to appropriate form based on request type
+                switch (requestType) {
+                    case "blood":
+                         window.location.href = "bloodRequest.html"; 
+                        // Open in a new tab
+                        break;
+                    case "food":
+                        window.location.href = "foodRequest.html"; // Open in a new tab
+                        break;
+                    case "clothes":
+                         window.location.href = "clothRequest.html"; // Open in a new tab
+                        break;
+                    default:
+                        console.error("Invalid request type selected");
+                }
+
+            });
+
+
+
+            //event listender for donate form
+            document.getElementById("donateOptionBtn").addEventListener("click", () => {
+                // Hide the request options page
+                const requestOptionsPage = document.getElementById("cc");
+                requestOptionsPage.classList.add("slide-out");
+                setTimeout(() => {
+                    requestOptionsPage.classList.add("hidden");
+                    requestOptionsPage.classList.remove("slide-out");
+
+                    // Show the donation form
+                    const donationForm = document.getElementById("donationForm");
+                    donationForm.classList.remove("hidden");
+                    donationForm.classList.add("slide-in");
+            requestOptionsPage.classList.add("hidden");
+
+                }, 300);
+            });
+
+
+            // Initially hide the donation options page
+            let generalDonationFormData = {};
+
+            document.getElementById("submitDonation").addEventListener("click", (e) => {
+                e.preventDefault();
+
+                // Get the selected donation type
+                const donationType = document.getElementById("donationType").value;
+
+                // Redirect to appropriate form based on donation type
+                switch (donationType) {
+                    case "food":
+                        window.location.href = "foodDonate.html";// Open in a new tab
+                        break;
+                    case "clothes":
+                        window.location.href = "clothDonate.html"; // Open in a new tab
+                        break;
+                    default:
+                        console.error("Invalid donation type selected");
+                }
+
+            });
+
+        });
+
+
+
+
+      
+
+
+
+            // //event listender for donate form
+            // document.getElementById("donateOptionBtn").addEventListener("click", () => {
+            //     // Hide the request options page
+            //     const requestOptionsPage = document.getElementById("requestOptionsPage");
+            //     requestOptionsPage.classList.add("slide-out");
+            //     setTimeout(() => {
+            //         requestOptionsPage.classList.add("hidden");
+            //         requestOptionsPage.classList.remove("slide-out");
+
+            //         // Show the donation form
+            //         const donationForm = document.getElementById("donationForm");
+            //         donationForm.classList.remove("hidden");
+            //         donationForm.classList.add("slide-in");
+            //     }, 300);
+            // });
+
+
+            // Initially hide the donation options page
+            // requestOptionsPage.classList.add("hidden");
+            let generalDonationFormData = {};
+
+            document.getElementById("submitDonation").addEventListener("click", (e) => {
+                e.preventDefault();
+
+                // Collect general donation form data
+                const donationType = document.getElementById("donationType").value;
+
+                // Determine which form to show based on the selected donation type
+                donationForm.classList.add("slide-out");
+                setTimeout(() => {
+                    donationForm.classList.add("hidden");
+                    donationForm.classList.remove("slide-out");
+
+                    // Show the appropriate donation form based on type
+                    if (donationType === "food") {
+                        foodDonationForm.classList.remove("hidden");
+                        foodDonationForm.classList.add("slide-in");
+                    } else if (donationType === "clothes") {
+                        clothDonationForm.classList.remove("hidden");
+                        clothDonationForm.classList.add("slide-in");
+                    }
+                }, 300);
+            });
+
+            
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

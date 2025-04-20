@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Donation</title>
+    <link rel="stylesheet" href="request.css">
+    <link rel="stylesheet" href="post.css">
+    <script src="feed.js"></script>
+    <style>
+        .card-title {
+            color: white
+        }
+
+        .subtitle {
+            color: white
+        }
+    </style>
+</head>
+
+<body>
+    <div id="foodDonationForm" class="hidden min-h-screen">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Food Donation Post</h2>
+                <p class="subtitle">Share details about food donations to help those in need</p>
+            </div>
+            <div class="card-content">
+                <form id="foodForm" class="post-form">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Title</label>
+                        <input id="title" type="text" class="form-input" placeholder="Enter request title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photoUpload" class="form-label">Food Photo</label>
+                        <input type="file" id="photoUpload" accept="image/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="foodType" class="form-label">Type of Food Available</label>
+                        <select id="foodType" class="form-input">
+                            <option value="">Select food type</option>
+                            <option value="Cooked meals">Cooked meals</option>
+                            <option value="Raw groceries">Raw groceries</option>
+                            <option value="snacks">Snacks</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="foodQuantity" class="form-label">Quantity of Food</label>
+                        <input type="text" id="foodQuantity" class="form-input"
+                            placeholder="E.g., Food for 20 people or 10kg groceries">
+                    </div>
+
+                    <!-- Person Photo -->
+                    <div class="form-group">
+                        <label for="photo" class="form-label">Photo</label>
+                        <input type="file" id="photo" accept="image/*" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" id="location" class="form-input" placeholder="Enter location or landmark">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactDetails" class="form-label">Contact Details</label>
+                        <input type="tel" id="contactDetails" class="form-input" placeholder="Enter phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deliveryOptions" class="form-label">Delivery Options</label>
+                        <select id="deliveryOptions" class="form-input">
+                            <option value="">Select delivery option</option>
+                            <option value="donor_delivery">I can deliver</option>
+                            <option value="recipient_pickup">Pickup required(Volunteer Required)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dietInfo" class="form-label">Special Dietary Information</label>
+                        <input type="text" id="dietInfo" class="form-input"
+                            placeholder="E.g., vegetarian, vegan, gluten-free">
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="pickupTiming" class="form-label">Pickup/Delivery Timing</label>
+                        <div class="time-range">
+                            <input type="time" id="startTime" class="form-input">
+                            <span>to</span>
+                            <input type="time" id="endTime" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitFoodDonation" class="submit-button">Submit Donation
+                            Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="../config.js"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+
+
+
+            document.getElementById("foodForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+                let isValid = true;
+
+                // Clear previous errors
+                document.querySelectorAll(".error-message").forEach(el => el.remove());
+                document.querySelectorAll(".error-border").forEach(el => el.classList.remove("error-border"));
+
+                function showError(element, message) {
+                    const error = document.createElement("div");
+                    error.className = "error-message";
+                    error.style.color = "red";
+                    error.style.fontSize = "0.9rem";
+                    error.innerText = message;
+                    element.classList.add("error-border");
+                    element.parentNode.appendChild(error);
+                }
+                // Title
+                const title = document.getElementById("title").value.trim();
+                if (title.length < 3 || title.length > 50) {
+                    showError(document.getElementById("title"), "Title must be between 3 and 50 characters.");
+                    isValid = false;
+                }
+
+                // Food photo
+                const foodPhoto = document.getElementById("photoUpload").files[0];
+                if (!foodPhoto) {
+                    showError(document.getElementById("photoUpload"), "Please upload a photo of the food.");
+                    isValid = false;
+                } else if (!["image/jpeg", "image/png", "image/jpg"].includes(foodPhoto.type)) {
+                    showError(document.getElementById("photoUpload"), "Only JPG or PNG images are allowed.");
+                    isValid = false;
+                }
+
+                // Food type
+                const foodType = document.getElementById("foodType").value.trim();
+                if (!foodType) {
+                    showError(document.getElementById("foodType"), "Please select a type of food.");
+                    isValid = false;
+                }
+
+                // Quantity
+                const foodQuantity = document.getElementById("foodQuantity").value.trim();
+                if (!foodQuantity) {
+                    showError(document.getElementById("foodQuantity"), "Please enter the quantity of food.");
+                    isValid = false;
+                }
+
+                // Person photo
+                const personPhoto = document.getElementById("photo").files[0];
+                if (!personPhoto) {
+                    showError(document.getElementById("photo"), "Please upload your photo.");
+                    isValid = false;
+                } else if (!["image/jpeg", "image/png", "image/jpg"].includes(personPhoto.type)) {
+                    showError(document.getElementById("photo"), "Only JPG or PNG images are allowed.");
+                    isValid = false;
+                }
+
+                // Location
+                const location = document.getElementById("location").value.trim();
+                if (!location) {
+                    showError(document.getElementById("location"), "Please enter a location.");
+                    isValid = false;
+                }
+
+                // Contact number
+                const contact = document.getElementById("contactDetails").value.trim();
+                if (!/^\d{10}$/.test(contact)) {
+                    showError(document.getElementById("contactDetails"), "Please enter a valid 10-digit phone number.");
+                    isValid = false;
+                }
+
+                // Delivery option
+                const deliveryOption = document.getElementById("deliveryOptions").value.trim();
+                if (!deliveryOption) {
+                    showError(document.getElementById("deliveryOptions"), "Please select a delivery option.");
+                    isValid = false;
+                }
+
+                // Delivery option
+                const dietInfo = document.getElementById("dietInfo").value.trim();
+                if (!dietInfo) {
+                    showError(document.getElementById("dietInfo"), "Please enter a diet information.");
+                    isValid = false;
+                }
+
+                // Time validation
+
+                // Time validation
+                const startTime = document.getElementById("startTime").value;
+                const endTime = document.getElementById("endTime").value;
+
+                if (!startTime || !endTime) {
+                    showError(document.getElementById("startTime"), "Please select both start and end time.");
+                    isValid = false;
+                } else {
+                    const getMinutes = (timeStr) => {
+                        const [hours, minutes] = timeStr.split(':').map(Number);
+                        return hours * 60 + minutes;
+                    };
+
+                    const startMinutes = getMinutes(startTime);
+                    const endMinutes = getMinutes(endTime);
+
+                    if (startMinutes >= endMinutes) {
+                        showError(document.getElementById("endTime"), "End time must be after start time.");
+                        isValid = false;
+                    }
+                }
+
+                // Stop if invalid
+                if (!isValid) {
+                    return;
+                }
+
+                // If valid, proceed to send form
+                const formData = new FormData();
+                formData.append("title", title);
+                formData.append("foodPhoto", document.getElementById("photoUpload").files[0]);
+                formData.append("foodType", document.getElementById("foodType").value);
+                formData.append("foodQuantity", document.getElementById("foodQuantity").value);
+                formData.append("personPhoto", document.getElementById("photo").files[0]);
+                formData.append("location", document.getElementById("location").value);
+                formData.append("contactDetails", document.getElementById("contactDetails").value);
+                formData.append("deliveryOptions", document.getElementById("deliveryOptions").value);
+                formData.append("dietInfo", document.getElementById("dietInfo").value);
+                formData.append("startTime", startTime);
+                formData.append("endTime", endTime);
+
+                const userId = sessionStorage.getItem("user_id");
+                if (userId) {
+                    formData.append("user_id", userId);
+                } else {
+                    alert("User session expired. Please log in again.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${window.API_URL}/submit-food-donate`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert("Food donation posted successfully!");
+                        window.location.href = "/post/feed.html";
+                    } else {
+                        alert("Error: " + result.message);
+                    }
+                } catch (error) {
+                    alert("An error occurred. Please try again later.");
+                    console.error(error);
+                }
+            });
+
+            // Remove error when user interacts with inputs
+            document.querySelectorAll(".form-input, input[type='file'], select").forEach(input => {
+                input.addEventListener("input", removeError);
+                input.addEventListener("change", removeError); // for file & select inputs
+
+                function removeError(e) {
+                    const el = e.target;
+                    el.classList.remove("error-border");
+                    const errorMsg = el.parentNode.querySelector(".error-message");
+                    if (errorMsg) {
+                        errorMsg.remove();
+                    }
+                }
+            });
+
+
+
+        });
+    </script>
+</body>
+
+</html>

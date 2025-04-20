@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Request</title>
+    <link rel="stylesheet" href="request.css">
+    <link rel="stylesheet" href="post.css">
+    <script src="feed.js"></script>
+    <style>
+        .card-title {
+            color: white
+        }
+
+        .subtitle {
+            color: white
+        }
+    </style>
+</head>
+
+<body>
+    <div id="foodRequestForm" class="hidden min-h-screen">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Food Donation Request</h2>
+                <p class="subtitle">Request food donations for individuals or families in need</p>
+            </div>
+            <div class="card-content">
+                <form id="foodForm" class="post-form">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Title</label>
+                        <input id="title" type="text" class="form-input" placeholder="Enter request title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo" class="form-label">Photo</label>
+                        <input type="file" id="photo" accept="image/*" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="foodType" class="form-label">Type of Food Needed</label>
+                        <select id="foodType" class="form-input">
+                            <option value="">Select food type</option>
+                            <option value="veg">Vegetarian</option>
+                            <option value="nonveg">Non-Vegetarian</option>
+                            <option value="glutenfree">Gluten-free</option>
+                            <option value="dairyfree">Dairy-free</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numPeopleNeeded" class="form-label">Number of People in Need</label>
+                        <input type="number" id="numPeopleNeeded" class="form-input" placeholder="Enter number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deliveryOptions" class="form-label">Delivery Options</label>
+                        <select id="deliveryOptions" class="form-input">
+                            <option value="">Select delivery option</option>
+                            <option value="donor_delivery">I can deliver</option>
+                            <option value="recipient_pickup">Pickup required(Volunteer Required)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location" class="form-label">Location/Address</label>
+                        <input type="text" id="location" class="form-input" placeholder="Enter address or landmark">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactDetails" class="form-label">Contact Details</label>
+                        <input type="text" id="contactDetails" class="form-input" placeholder="Enter phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deadlineDate" class="form-label">Required Before (Date)</label>
+                        <input type="date" id="deadlineDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadlineTime" class="form-label">Required Before (Time)</label>
+                        <input type="time" id="deadlineTime" class="form-input">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitFoodRequest" class="submit-button">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="../config.js"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("foodForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const data = {
+                    title: document.getElementById("title").value,
+                    foodType: document.getElementById("foodType").value,
+                    numPeopleNeeded: document.getElementById("numPeopleNeeded").value,
+                    deliveryOptions: document.getElementById("deliveryOptions").value,
+                    location: document.getElementById("location").value,
+                    contactDetails: document.getElementById("contactDetails").value,
+                    deadlineDate: document.getElementById("deadlineDate").value,
+                    deadlineTime: document.getElementById("deadlineTime").value
+                };
+                const userId = sessionStorage.getItem("user_id"); // or localStorage.getItem("user_id");
+
+                if (userId) {
+                    data.user_id = userId; // Append user_id to form data
+                } else {
+                    alert("User session expired. Please log in again.");
+                    return;
+                }
+
+                const response = await fetch(`${window.API_URL}/submit-food-request`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert("Food request submitted successfully!");
+                    window.location.href = "/post/feed.html";
+                } else {
+                    alert("Error: " + result.message);
+                }
+            });
+            document.getElementById("foodForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                let isValid = true;
+
+                // Clear previous errors
+                document.querySelectorAll(".error-message").forEach(el => el.remove());
+                document.querySelectorAll(".error-border").forEach(el => el.classList.remove("error-border"));
+
+                function showError(element, message) {
+                    const error = document.createElement("div");
+                    error.className = "error-message";
+                    error.style.color = "red";
+                    error.style.fontSize = "0.9rem";
+                    error.innerText = message;
+                    element.classList.add("error-border");
+                    element.parentNode.appendChild(error);
+                }
+
+                // Title
+                const title = document.getElementById("title").value.trim();
+                if (title.length < 3 || title.length > 50) {
+                    showError(document.getElementById("title"), "Title must be between 3 and 50 characters.");
+                    isValid = false;
+                }
+
+                // Photo
+                const photo = document.getElementById("photo").files[0];
+                if (!photo) {
+                    showError(document.getElementById("photo"), "Please upload a photo.");
+                    isValid = false;
+                } else if (!["image/jpeg", "image/png", "image/jpg"].includes(photo.type)) {
+                    showError(document.getElementById("photo"), "Only JPG or PNG images are allowed.");
+                    isValid = false;
+                }
+
+                // Food type
+                const foodType = document.getElementById("foodType").value;
+                if (!foodType) {
+                    showError(document.getElementById("foodType"), "Please select a food type.");
+                    isValid = false;
+                }
+
+                // Number of people
+                const numPeople = document.getElementById("numPeopleNeeded").value.trim();
+                if (numPeople === "" || isNaN(numPeople) || parseInt(numPeople) <= 0) {
+                    showError(document.getElementById("numPeopleNeeded"), "Enter a valid number greater than 0.");
+                    isValid = false;
+                }
+
+                // Delivery option
+                const deliveryOption = document.getElementById("deliveryOptions").value;
+                if (!deliveryOption) {
+                    showError(document.getElementById("deliveryOptions"), "Please select a delivery option.");
+                    isValid = false;
+                }
+
+                // Location
+                const location = document.getElementById("location").value.trim();
+                if (!location) {
+                    showError(document.getElementById("location"), "Please enter a location or address.");
+                    isValid = false;
+                }
+
+                // Contact Details (10-digit number)
+                const contact = document.getElementById("contactDetails").value.trim();
+                if (!/^\d{10}$/.test(contact)) {
+                    showError(document.getElementById("contactDetails"), "Enter a valid 10-digit phone number.");
+                    isValid = false;
+                }
+
+                // Deadline date
+
+                const deadlineInput = document.getElementById("deadlineDate");
+                const deadlineValue = deadlineInput.value;
+
+                if (!deadlineValue) {
+                    showError(deadlineInput, "Please select a date.");
+                    isValid = false;
+                } else {
+                    const [year, month, day] = deadlineValue.split("-");
+                    const formattedDate = `${day}-${month}-${year}`;
+
+                    // Compare with today's date
+                    const selectedDate = new Date(`${year}-${month}-${day}`);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        showError(deadlineInput, "Date must be today or in the future (dd-mm-yyyy).");
+                        isValid = false;
+                    }
+
+                    // You can also store/use formattedDate if needed
+                    console.log("Deadline (dd-mm-yyyy):", formattedDate);
+                }
+
+
+                // Deadline time
+                const deadlineTime = document.getElementById("deadlineTime").value;
+                if (!deadlineTime) {
+                    showError(document.getElementById("deadlineTime"), "Please enter the deadline time.");
+                    isValid = false;
+                }
+
+                // Final check
+                if (isValid) {
+                    alert("Form submitted successfully!");
+
+                }
+            });
+
+            document.querySelectorAll(".form-input, input[type='file'], select").forEach(input => {
+                input.addEventListener("input", removeError);
+                input.addEventListener("change", removeError);
+
+                function removeError(e) {
+                    const el = e.target;
+                    el.classList.remove("error-border");
+                    const errorMsg = el.parentNode.querySelector(".error-message");
+                    if (errorMsg) {
+                        errorMsg.remove();
+                    }
+                }
+            });
+
+
+        });
+    </script>
+</body>
+
+</html>

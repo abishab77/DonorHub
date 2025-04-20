@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonorHub Profile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .profile-top {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .profile-picture-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-picture {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: none;
+        }
+
+        .owner-view .edit-picture {
+            display: flex;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .profile-category {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .profile-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+        }
+
+        .donation-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .status-available {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-unavailable {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .edit-button {
+            padding: 8px 16px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: none;
+        }
+
+        .owner-view .edit-button {
+            display: block;
+        }
+
+        .edit-button:hover {
+            background-color: #1557b0;
+        }
+
+        .profile-details {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .posts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .posts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .new-post-button {
+            padding: 8px 16px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: none;
+        }
+
+        .owner-view .new-post-button {
+            display: block;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .post-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .post-content {
+            padding: 16px;
+        }
+
+        .post-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .post-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .owner-view .post-actions {
+            display: flex;
+        }
+
+        .post-action-button {
+            padding: 4px 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .post-action-button:hover {
+            background-color: #f5f5f5;
+        }
+
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .confirm-button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+        }
+
+        .cancel-button {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+
+        .post-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .post-menu.show {
+            display: block;
+        }
+
+        .post-menu-button {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .post-menu-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .post-card {
+            position: relative;
+        }
+
+        .post-more-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .post {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+            width: 100%;
+        }
+
+        .post-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 100%;
+            border: none;
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .username {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .time {
+            font-size: 12px;
+            color: gray;
+        }
+
+        .post-actions-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+
+
+        }
+
+        .post-type {
+            font-weight: bold;
+            color: #ff6666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+            margin-bottom: 25px;
+
+        }
+
+        .dropdown-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 70%;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            min-width: 100px;
+            z-index: 9999;
+            flex-direction: column !important;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: flex !important;
+        }
+
+        .dropdown-item {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            display: block;
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .dropdown-content,
+        .dropdown-content * {
+            white-space: wrap;
+            flex-wrap: wrap !important;
+        }
+
+        .post-actions-top *,
+        .post-type *,
+        .dropdown * {
+            flex-direction: inherit;
+        }
+
+
+
+        .post-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            position: relative;
+            z-index: 0;
+
+        }
+
+        .post-content {
+            margin-top: 10px;
+        }
+
+        .post-content h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .post-content p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .post-content strong {
+            font-weight: bold;
+            color: #333;
+        }
+
+
+
+
+        .post-image img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+
+            border-radius: 10px;
+            z-index: 1;
+
+
+        }
+
+
+
+
+        .post-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .share-menu {
+            display: none;
+
+            position: absolute;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            top: 40px;
+
+            left: 0;
+            z-index: 100;
+        }
+
+        .share-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+
+        .share-menu.active {
+            display: block;
+        }
+
+        .share-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+
+        .share-menu {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            min-width: 300px;
+            max-width: 400px;
+            position: relative;
+            z-index: 1001;
+
+        }
+
+
+
+
+        .share-menu .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+
+
+        .share-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .share-option i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .share-button {
+            background-color: #ff6666;
+
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .share-button svg {
+            stroke: white;
+            width: 20px;
+            height: 20px;
+        }
+
+        .share-button:hover {
+            background-color: #e55b5b;
+
+        }
+
+        .fa-whatsapp {
+            color: #25D366;
+        }
+
+        .fa-facebook {
+            color: #1877F2;
+        }
+
+        .fa-instagram {
+            color: #E4405F;
+        }
+
+        .fa-twitter {
+            color: #1DA1F2;
+        }
+
+        .post {
+            position: relative;
+        }
+
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 20px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .like-btn:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .like-btn.liked {
+            color: red;
+        }
+
+        .logout-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+
+        }
+
+        .logout-button {
+            background-color: #2563eb;
+
+            color: white;
+            padding: 0.5rem 1rem;
+
+            border: none;
+            border-radius: 0.375rem;
+
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #1d4ed8;
+
+        }
+
+
+        @media (max-width: 768px) {
+            .profile-top {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .profile-picture-container {
+                margin: 0 auto;
+            }
+
+            .profile-info {
+                align-items: center;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .edit-button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+
+            .profile-header,
+            .profile-details,
+            .posts-section {
+                padding: 16px;
+            }
+
+            .posts-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .new-post-button {
+                width: 100%;
+            }
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+
+            border-radius: 10px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="profileView" class="owner-view">
+            <div class="profile-header">
+                <div class="profile-top">
+                    <div class="profile-info">
+                        <h1 class="profile-name"></h1>
+
+                    </div>
+
+                    <div class="logout-container">
+                        <button class="logout-button" onclick="logoutUser()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Log out
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Blood Group</span>
+                        <span class="detail-value" data-field="blood_group"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value" data-field="location"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email-ID</span>
+                        <span class="detail-value" data-field="email"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Role</span>
+                        <span class="detail-value" data-field="role"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="posts-section">
+                <div class="posts-header">
+                    <h2>Donation Posts</h2>
+                    <button class="new-post-button">
+                        <i class="fas fa-plus"></i>
+                        <a href="http://127.0.0.1:5501/post/post.html" style="text-decoration: none; color:unset">New
+                            Post</a>
+                    </button>
+                </div>
+                <div class="posts-grid">
+
+                    <div class="post-card">
+                        <img src="/images/image10.jpg" alt="Donation Post" class="post-image">
+                        <button class="post-more-button">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="post-menu">
+                            <button class="post-menu-button" onclick="handleEdit(1)">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </button>
+                            <button class="post-menu-button" onclick="handleDelete(1)">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+
+                    </div>
+                    <div class="post-card">
+                        <img src="h.png" alt="Donation Post" class="post-image">
+                        <div class="post-content">
+                            <button class="post-more-button">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="post-menu">
+                                <button class="post-menu-button" onclick="handleEdit(1)">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </button>
+                                <button class="post-menu-button" onclick="handleDelete(1)">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+                            <div class="post-title">Community Drive</div>
+                            <div class="post-date">February 28, 2024</div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="posts-grid">
+
+    </div>
+    <script src="/config.js"></script>
+    <script>
+        function logoutUser() {
+
+            sessionStorage.removeItem('user_id');
+
+
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const user_Id = sessionStorage.getItem("user_id");
+
+            if (!user_Id) {
+                console.error("User ID not found in session storage.");
+                return;
+            }
+
+
+            fetch(`${window.API_URL}/api/posts/get-user-posts?user_id=${user_Id}`)
+                .then(response => response.json())
+                .then(posts => {
+                    console.log("Received posts:", posts);
+
+
+                    if (!Array.isArray(posts)) {
+                        console.error("API returned an unexpected format:", posts);
+                        return;
+                    }
+
+                    const postContainer = document.querySelector('.posts-grid');
+
+                    if (!postContainer) {
+                        console.error("Element with ID 'postContainer-all' not found");
+                        return;
+                    }
+
+                    postContainer.innerHTML = "";
+
+                    posts.forEach(post => {
+                        let imageSrc = "h.png";
+
+                        if (post.source === "blood_requests" && post.photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.photo}`;
+                        } else if (post.source === "food_donates" && post.person_photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.person_photo}`;
+                        } else if (post.source === "cloth_donates" && post.cloth_photo) {
+                            imageSrc = `data:image/jpeg;base64,${post.cloth_photo}`;
+                        }
+
+                        const postElement = document.createElement("article");
+                        postElement.classList.add("post");
+                        postElement.dataset.postId = post.id;
+
+
+                        let postContent = `
+               <div class="post-card">
+        <div class="post-info">
+            <div class="username">${post.username || "Anonymous"}</div>
+            <div class="time" data-timestamp="${post.created_at}">
+    ${timeAgo(post.created_at)}
+</div>
+
+        </div>
+        
+                
+            `;
+
+                        if (post.source === "blood_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Blood"}</div>
+            
+            
+        </div>
+    </div>
+                <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+                     <p><strong>Blood Group:</strong> ${post.type}</p>
+                            <p><strong>Patient Name:</strong> ${post.name}</p>
+                            <p><strong>Age:</strong> ${post.age}</p>
+                            <p><strong>Gender:</strong> ${post.gender}</p>
+                            <p><strong>Medical Condition:</strong> ${post.medical_condition}</p>
+                            <p><strong>Hospital:</strong> ${post.location}</p>
+                            <p><strong>Required Before:</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                            `;
+                        } else if (post.source === "food_donates") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food"}</div>
+           
+        </div>
+    </div>
+                <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+
+                      <p><strong>Food TYpe:</strong> ${post.food_type}</p>
+                            <p><strong>Food quantity:</strong> ${post.food_quantity}</p>
+                         
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Diet info:</strong> ${post.diet_info}</p>
+                           
+                            <p><strong>Required Before:</strong> ${post.start_time} ${post.end_time}</p>
+                          
+                `;
+                        } else if (post.source === "cloth_donates") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+           
+        </div>
+    </div>
+                 <div class="post-image">
+                <img src="${imageSrc}" alt="Post Image" >
+                </div>
+
+                    <p><strong>Cloth Type:</strong> ${post.cloth_type || "N/A"}</p>
+                    <p><strong>Quantity:</strong> ${post.cloth_quantity || "N/A"}</p>
+                    <p><strong>Cloth condition:</strong> ${post.cloth_condition || "N/A"}</p>
+                    <p><strong>Cloth quantity:</strong> ${post.cloth_quantity || "N/A"}</p>
+                    <p><strong>Size:</strong> ${post.cloth_size || "N/A"}</p>
+                    <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                `;
+
+                        } else if (post.source === "cloth_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Cloth"}</div>
+            
+        </div>
+    </div>
+                
+                    <p><strong>Receipient count:</strong> ${post.age || "N/A"}</p>
+                    <p><strong>Age group:</strong> ${post.age_group || "N/A"}</p>
+                     <p><strong>Number of People in Needed:</strong> ${post.age}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                            
+                            <p><strong>Reason:</strong> ${post.need_reason}</p>
+                            <p><strong>Gender:</strong> ${post.gender}</p>
+                `;
+
+                        } else if (post.source === "food_requests") {
+                            postContent += `
+                <div class="post-actions-top">
+            <div class="post-type">${post.type || "Food"}</div>
+           
+        </div>
+    </div>
+                     <p><strong>Food Type:</strong> ${post.food_type}</p>
+                            <p><strong>Number of People in Needed:</strong> ${post.num_people_needed}</p>
+                            <p><strong>DeliveryOptions:</strong> ${post.delivery_options}</p>
+                            <p><strong>Location:</strong> ${post.location}</p>
+                            <p><strong>ContactDetails:</strong> ${post.contact_details}</p>
+                            <p><strong> Deadline :</strong> ${post.deadline_date} ${post.deadline_time}</p>
+                            <p><strong>Status:</strong> ${post.status}</p>
+                            <p><strong>Verified:</strong> ${post.verified}</p>
+                `;
+                        }
+
+
+                        postContent += `
+                <p><strong>Status:</strong> ${post.status || "N/A"}</p>
+                <p><strong>Verified:</strong> ${post.verified || "N/A"}</p>
+                <div class="button-container">
+   <button class="like-btn" data-post-id="${post.id}">
+            <span class="heart">♡</span> <span class="like-count">0</span>
+        </button>
+    <button class="action-button share-button" onclick="openShareMenu(this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    Share
+</button>
+</div>
+<div class="share-menu">
+    <button class="share-option" onclick="sharePost('whatsapp', this)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+    <button class="share-option" onclick="sharePost('facebook', this)">
+        <i class="fab fa-facebook"></i> Facebook
+    </button>
+    <button class="share-option" onclick="sharePost('instagram', this)">
+        <i class="fab fa-instagram"></i> Instagram
+    </button>
+    <button class="share-option" onclick="sharePost('twitter', this)">
+        <i class="fab fa-twitter"></i> Twitter
+    </button>
+</div>
+            `;
+
+                        postElement.innerHTML = postContent;
+                        postContainer.appendChild(postElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+
+
+            const userId = sessionStorage.getItem("user_id");
+
+            if (userId) {
+                fetch(`${window.API_URL}/getUserDetails`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ user_id: userId }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.querySelector(".profile-name").textContent = data.name;
+                            console.log(data.name)
+                            document.querySelector(".detail-value[data-field='email']").textContent = data.email;
+                            document.querySelector(".detail-value[data-field='role']").textContent = data.role;
+                            document.querySelector(".detail-value[data-field='location']").textContent = data.location;
+                            if (data.blood_group) {
+                                document.querySelector(".detail-value[data-field='blood_group']").textContent = data.blood_group;
+                            }
+                        } else {
+                            console.error("Failed to fetch user details");
+                        }
+                    })
+                    .catch(error => console.error("Error fetching user details:", error));
+            } else {
+                console.error("User ID not found in session storage");
+            }
+
+            document.querySelectorAll(".time").forEach((element) => {
+                const timestamp = element.getAttribute("data-timestamp");
+                if (timestamp) {
+                    element.innerText = timeAgo(timestamp);
+                }
+            });
+
+            const dropdownOrigins = new Map();
+
+            const dropdownButtons = document.querySelectorAll('.dropdown-button');
+
+            dropdownButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.stopPropagation();
+
+                    const dropdown = this.closest('.dropdown');
+                    const dropdownContent = dropdown.querySelector('.dropdown-content');
+
+                    if (dropdownOrigins.has(dropdownContent)) {
+                        const originalParent = dropdownOrigins.get(dropdownContent).parent;
+                        const originalNextSibling = dropdownOrigins.get(dropdownContent).nextSibling;
+
+                        if (originalNextSibling) {
+                            originalParent.insertBefore(dropdownContent, originalNextSibling);
+                        } else {
+                            originalParent.appendChild(dropdownContent);
+                        }
+
+                        dropdownContent.style.display = 'none';
+                        dropdownContent.style.position = '';
+                        dropdownContent.style.top = '';
+                        dropdownContent.style.left = '';
+                        dropdownContent.style.zIndex = '';
+                        dropdownOrigins.delete(dropdownContent);
+                        return;
+                    }
+
+                    dropdownOrigins.forEach((origin, content) => {
+                        const originalParent = origin.parent;
+                        const originalNextSibling = origin.nextSibling;
+
+                        if (originalNextSibling) {
+                            originalParent.insertBefore(content, originalNextSibling);
+                        } else {
+                            originalParent.appendChild(content);
+                        }
+
+                        content.style.display = 'none';
+                        content.style.position = '';
+                        content.style.top = '';
+                        content.style.left = '';
+                        content.style.zIndex = '';
+                    });
+                    dropdownOrigins.clear();
+                    dropdownOrigins.set(dropdownContent, {
+                        parent: dropdownContent.parentNode,
+                        nextSibling: dropdownContent.nextSibling
+                    });
+
+                    const rect = button.getBoundingClientRect();
+
+                    dropdownContent.style.position = 'fixed';
+                    dropdownContent.style.top = `${rect.bottom}px`;
+                    dropdownContent.style.left = `${rect.right - 120}px`;
+                    dropdownContent.style.zIndex = '99999';
+                    dropdownContent.style.display = 'block';
+                    dropdownContent.style.background = 'white';
+                    dropdownContent.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+                    dropdownContent.style.border = '1px solid #ccc';
+                    dropdownContent.style.borderRadius = '5px';
+
+                    document.body.appendChild(dropdownContent);
+                });
+            });
+
+            document.addEventListener('click', function () {
+                dropdownOrigins.forEach((origin, content) => {
+                    const originalParent = origin.parent;
+                    const originalNextSibling = origin.nextSibling;
+
+                    if (originalNextSibling) {
+                        originalParent.insertBefore(content, originalNextSibling);
+                    } else {
+                        originalParent.appendChild(content);
+                    }
+
+                    content.style.display = 'none';
+                    content.style.position = '';
+                    content.style.top = '';
+                    content.style.left = '';
+                    content.style.zIndex = '';
+                });
+                dropdownOrigins.clear();
+            });
+
+
+            document.querySelectorAll('.dropdown-content').forEach(content => {
+                content.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+
+
+
+        const moreButtons = document.querySelectorAll('.post-more-button');
+        const postMenus = document.querySelectorAll('.post-menu');
+
+        moreButtons.forEach((button, index) => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                postMenus[index].classList.toggle('show');
+            });
+        });
+        document.addEventListener('click', () => {
+            postMenus.forEach(menu => menu.classList.remove('show'));
+        });
+
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        let currentPostId = null;
+
+        function handleEdit(postId) {
+            currentPostId = postId;
+            editModal.style.display = 'flex';
+        }
+
+        function handleDelete(postId) {
+            currentPostId = postId;
+            deleteModal.style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            editModal.style.display = 'none';
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+        }
+
+        function confirmEdit() {
+
+            console.log('Editing post:', currentPostId);
+            closeEditModal();
+        }
+
+        function confirmDelete() {
+
+            console.log('Deleting post:', currentPostId);
+            closeDeleteModal();
+        }
+
+        function openShareMenu(button) {
+
+            let existingOverlay = document.querySelector(".share-menu-overlay");
+            if (existingOverlay) existingOverlay.remove();
+
+            let overlay = document.createElement("div");
+            overlay.className = "share-menu-overlay";
+
+
+            let post = button.closest(".post");
+
+
+            let shareMenu = post.querySelector(".share-menu");
+
+            let newMenu = shareMenu.cloneNode(true);
+            newMenu.style.display = "block";
+
+            newMenu.querySelectorAll(".share-option").forEach((btn) => {
+                btn.addEventListener("click", (event) => {
+                    let platform = event.target.getAttribute("onclick").match(/'([^']+)'/)[1];
+                    sharePost(platform);
+                });
+            });
+
+            let closeButton = document.createElement("button");
+            closeButton.className = "close-btn";
+            closeButton.innerHTML = "✖";
+            closeButton.onclick = () => document.body.removeChild(overlay);
+
+            newMenu.prepend(closeButton);
+            overlay.appendChild(newMenu);
+
+            let postRect = post.getBoundingClientRect();
+            newMenu.style.position = "absolute";
+            newMenu.style.top = `${postRect.top + window.scrollY + postRect.height / 2 - 100}px`;
+            newMenu.style.left = `${postRect.left + window.scrollX + postRect.width / 2 - 150}px`;
+
+            overlay.addEventListener("click", (event) => {
+                if (event.target === overlay) {
+                    document.body.removeChild(overlay);
+                    post.querySelector(".share-menu").style.display = "none";
+                }
+            });
+
+            document.body.appendChild(overlay);
+
+            if (!shareMenu) {
+                console.error("Share menu not found inside post!", post);
+                return;
+            }
+
+            if (shareMenu.style.display === "block") {
+                shareMenu.style.display = "none";
+            } else {
+                document.querySelectorAll(".share-menu").forEach((menu) => {
+                    menu.style.display = "none";
+                });
+
+                shareMenu.style.display = "block";
+            }
+        }
+
+
+
+
+
+
+        function sharePost(platform, button) {
+            const post = button.closest('.post');
+            const postId = post.dataset.postId;
+            const url = `${window.location.origin}/post/${postId}`;
+
+            switch (platform) {
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodeURIComponent(url)}`);
+                    break;
+                case 'facebook':
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+                    break;
+                case 'instagram':
+                    alert("Instagram does not support direct link sharing.");
+                    break;
+                case 'twitter':
+                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`);
+                    break;
+            }
+
+            post.querySelector('.share-menu').style.display = 'none';
+        }
+
+        document.addEventListener("click", function (event) {
+            if (event.target.closest(".like-btn")) {
+                let button = event.target.closest(".like-btn");
+                let heart = button.querySelector(".heart");
+                let likeCountElement = button.querySelector(".like-count");
+
+                let currentLikes = parseInt(likeCountElement.textContent);
+                let liked = heart.textContent === "❤";
+
+                if (liked) {
+                    heart.textContent = "♡";
+                    currentLikes--;
+                } else {
+                    heart.textContent = "❤";
+                    currentLikes++;
+                }
+
+                likeCountElement.textContent = currentLikes;
+            }
+        });
+
+        function timeAgo(timestamp) {
+            const now = new Date();
+            const postDate = new Date(timestamp);
+            const seconds = Math.floor((now - postDate) / 1000);
+
+            if (seconds < 60) return "Just now";
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            const weeks = Math.floor(days / 7);
+            if (weeks < 4) return `${weeks}w ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months}mo ago`;
+            const years = Math.floor(days / 365);
+            return `${years}y ago`;
+        }
+
+
+    </script>
+</body>
+
+</html>
